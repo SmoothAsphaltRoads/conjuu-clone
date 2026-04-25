@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRISIS CONNECT – Disaster Relief Coordination</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #f5f7fa;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: #333;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1,h2,h3 { margin-top: 0; }
+    p { margin-top: 0; }
+    #root { min-height: 100vh; display: flex; flex-direction: column; }
+
+    .container { max-width: 1100px; margin: 0 auto; width: 100%; }
+
+    .btn-primary {
+      background: #fd3022; color: #fff; border: none; border-radius: 8px;
+      padding: 10px 22px; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+      display: inline-block; text-align: center; text-decoration: none;
+      transition: background .2s, opacity .2s;
+    }
+    .btn-primary:hover { background: #b81500fd; }
+    .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+
+    .btn-secondary {
+      background: #2980b9; color: #fff; border: none; border-radius: 8px;
+      padding: 10px 22px; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+      display: inline-block; text-decoration: none; transition: background .2s;
+    }
+    .btn-secondary:hover { background: #1a6a99; }
+    .btn-secondary:disabled { opacity: .6; cursor: not-allowed; }
+
+    input[type="text"], input[type="email"], input[type="password"], select, textarea {
+      display: block; width: 100%; padding: 10px 14px; font-size: 0.95rem;
+      font-family: inherit; border: 1.5px solid #ddd; border-radius: 8px;
+      background: #fafafa; color: #333; outline: none;
+      transition: border-color .2s; box-sizing: border-box;
+    }
+    input[type="text"]:focus, input[type="email"]:focus,
+    input[type="password"]:focus, select:focus, textarea:focus {
+      border-color: #e94560; background: #fff;
+    }
+    textarea { resize: vertical; min-height: 90px; }
+
+    #navbar {
+      background: #1a1a2e; padding: 0 24px; position: sticky;
+      top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.3);
+    }
+    #navbar .container {
+      display: flex; align-items: center; justify-content: space-between; height: 60px;
+    }
+    #navbar .brand {
+      color: #c7ff7f; font-size: 1.5rem; font-weight: 800;
+      text-decoration: none; letter-spacing: 2px; cursor: pointer;
+    }
+    #navbar .links { display: flex; align-items: center; gap: 24px; }
+    #navbar .nav-link {
+      color: #ccc; text-decoration: none; font-size: 0.95rem; cursor: pointer;
+      background: none; border: none; font-family: inherit; transition: color .2s;
+    }
+    #navbar .nav-link:hover { color: #fff; }
+    #navbar .logout-btn {
+      background: #e94560; color: #fff; border: none; border-radius: 6px;
+      padding: 6px 16px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .hero {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+      padding: 80px 24px; text-align: center;
+    }
+    .hero-inner { max-width: 700px; margin: 0 auto; }
+    .hero-title {
+      color: #fff; font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800; margin-bottom: 16px; line-height: 1.2;
+    }
+    .hero-tagline { color: #aac4e6; font-size: 1.1rem; margin-bottom: 36px; line-height: 1.6; }
+    .hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .hero-btn { font-size: 1rem; padding: 12px 28px; text-decoration: none; border-radius: 8px; }
+
+    .stats-section { padding: 60px 24px; background: #f5f7fa; }
+    .section-title {
+      text-align: center; color: #1a1a2e; font-size: 1.6rem;
+      font-weight: 700; margin-bottom: 32px;
+    }
+    .stats-grid { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+    .stat-card {
+      background: #fff; border-radius: 10px; padding: 24px 20px;
+      text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      flex: 1; min-width: 140px;
+    }
+    .stat-value { font-size: 2.4rem; font-weight: 800; line-height: 1; margin-bottom: 8px; }
+    .stat-label { font-size: 0.9rem; color: #666; font-weight: 500; text-transform: uppercase; letter-spacing: .5px; }
+
+    .cta { background: #0f3460; padding: 60px 24px; }
+
+    .auth-page {
+      min-height: calc(100vh - 60px); display: flex;
+      align-items: center; justify-content: center;
+      background: #f5f7fa; padding: 24px;
+    }
+    .auth-card {
+      background: #fff; border-radius: 12px; padding: 40px;
+      width: 100%; max-width: 420px; box-shadow: 0 4px 20px rgba(0,0,0,.1);
+    }
+    .auth-title { font-size: 1.6rem; font-weight: 800; color: #1a1a2e; margin-bottom: 6px; }
+    .auth-subtitle { color: #666; margin-bottom: 24px; }
+    .form-label { display: block; font-weight: 600; color: #333; margin-bottom: 6px; margin-top: 16px; }
+    .form-btn { width: 100%; margin-top: 24px; padding: 12px; font-size: 1rem; }
+    .form-footer { text-align: center; color: #666; font-size: .9rem; margin-top: 20px; }
+    .form-flink { color: #e94560; font-weight: 600; text-decoration: none; cursor: pointer; }
+    .error-box {
+      background: #fdecea; color: #c0392b; border: 1px solid #e74c3c;
+      border-radius: 8px; padding: 10px 14px; margin-bottom: 18px; font-size: .9rem;
+    }
+    .success-box {
+      background: #eafaf1; color: #3e841e; border: 1px solid #27ae60;
+      border-radius: 8px; padding: 10px 14px; margin-bottom: 18px; font-size: .9rem;
+    }
+
+    .form-page { min-height: calc(100vh - 60px); padding: 40px 24px; background: #f5f7fa; }
+    .form-card {
+      background: #fff; border-radius: 12px; padding: 40px;
+      max-width: 620px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,.08);
+    }
+    .form-title { font-size: 1.8rem; font-weight: 800; color: #1a1a2e; margin-bottom: 8px; }
+    .form-subtitle { color: #666; margin-bottom: 28px; }
+    .field { margin-bottom: 20px; }
+    .field-error { color: #e74c3c; font-size: .82rem; margin-top: 4px; }
+    .submit-btn { width: 100%; padding: 12px; font-size: 1rem; margin-top: 8px; }
+    .id-box {
+      display: inline-block; background: #f0f4ff; border: 1px solid #c3d0f5;
+      border-radius: 6px; padding: 8px 16px; font-size: .9rem;
+      color: #1a1a2e; word-break: break-all; font-family: monospace;
+    }
+    .success-screen { text-align: center; max-width: 500px; margin: 80px auto; }
+
+    .tracker-page { min-height: calc(100vh - 60px); padding: 40px 24px; background: #f5f7fa; }
+    .tracker-title { font-size: 1.8rem; font-weight: 800; color: #1a1a2e; margin-bottom: 6px; }
+    .tracker-subtitle { color: #666; margin-bottom: 24px; }
+    .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; align-items: center; }
+    .filter-btn {
+      padding: 7px 16px; border-radius: 20px; border: 1.5px solid #ccc;
+      background: #fff; cursor: pointer; font-size: .85rem; font-weight: 500; color: #444;
+      transition: all .2s; font-family: inherit;
+    }
+    .filter-btn.active { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+    .refresh-btn {
+      padding: 7px 16px; border-radius: 20px; border: 1.5px solid #e94560;
+      background: transparent; cursor: pointer; font-size: .85rem; font-weight: 500;
+      color: #e94560; margin-left: auto; font-family: inherit;
+    }
+    .state-msg { text-align: center; color: #888; padding: 40px 0; }
+
+    .req-card {
+      background: #fff; border-radius: 10px; padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08); margin-bottom: 16px;
+      border-left: 4px solid #e94560;
+    }
+    .req-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      flex-wrap: wrap; gap: 8px; margin-bottom: 10px;
+    }
+    .req-name { font-weight: 700; font-size: 1.05rem; color: #1a1a2e; }
+    .req-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+    .badge {
+      padding: 3px 10px; border-radius: 20px; font-size: .75rem;
+      font-weight: 600; text-transform: uppercase; color: #fff;
+    }
+    .req-desc { color: #444; margin: 0 0 12px; line-height: 1.5; }
+    .req-meta {
+      display: flex; justify-content: space-between; color: #777;
+      font-size: .85rem; flex-wrap: wrap; gap: 4px;
+    }
+    .req-actions { margin-top: 14px; display: flex; gap: 10px; }
+
+    .dash-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      flex-wrap: wrap; gap: 16px; margin-bottom: 28px;
+    }
+    .sum-badge {
+      padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: .9rem;
+    }
+
+    .footer-bar {
+      background: #1a1a2e;
+      color: #f5f7fa;
+      text-align: center;
+      padding: 12px 16px;
+      font-size: 0.92rem;
+      margin-top: 24px;
+    }
+  </style>
+</head>
+<body>
+<div id="root">
+
+
+  <nav id="navbar">
+    <div class="container">
+      <span class="brand" onclick="navigate('home')">CRISIS CONNECT</span>
+      <div class="links" id="nav-links"></div>
+    </div>
+  </nav>
+
+  <div id="page-home"      class="page"></div>
+  <div id="page-request"   class="page"></div>
+  <div id="page-track"      class="page"></div>
+  <div id="page-login"      class="page"></div>
+  <div id="page-signup"    class="page"></div>
+  <div id="page-dashboard" class="page"></div>
+
+  <div class="footer-bar">Created by Aadil, Abhijnan, Sanvi, and Chirag.</div>
+
+</div>
+
+<script>
+    // --- PRIVATE HOBBY CREDENTIALS ---
+const REDIS_URL =  "redis-15949.crce263.ap-south-1-1.ec2.cloud.redislabs.com"; // CHANGE THIS TO YOUR KV REST API URL
+const REDIS_TOKEN = "15949";
+
+const sore = {
+  // Talk to Redis via HTTP fetch
+  async cmd(command, args) {
+    const response = await fetch(`${REDIS_URL}/${command}/${args.join('/')}`, {
+      headers: { Authorization: `Bearer ${REDIS_TOKEN}` }
+    });
+    const result = await response.json();
+    return result.result; // Redis HTTP returns { result: "the_data" }
+  },
+
+  async get(key, def) {
+    try {
+      const data = await this.cmd('get', [key]);
+      return data ? JSON.parse(data) : def;
+    } catch (e) { return def; }
+  },
+
+  async set(key, newItem) {
+    // 1. Get existing data
+    const existing = await this.get(key, []);
+    // 2. Add new item
+    existing.push(newItem);
+    // 3. Save back as a JSON string
+    await this.cmd('set', [key, JSON.stringify(existing)]);
+  }
+};
+
+// --- UPDATED HELPERS ---
+async function getRequests() { return await store.get('requests', []); }
+async function saveRequests(req) { await store.set('requests', req); }
+async function getUsers() { return await store.get('users', []); }
+async function saveUsers(user) { await store.set('users', user); }
+const store = {
+  get(key, def) {
+    try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch { return def; }
+  },
+  set(key, val) { localStorage.setItem(key, JSON.stringify(val)); },
+};
+
+function getRequests() { return store.get('requests', []); }
+function saveRequests(r) { store.set('requests', r); }
+function getUsers()    { return store.get('users', []); }
+function saveUsers(u)  { store.set('users', u); }
+function getSession()  { return store.get('session', null); }
+function saveSession(s){ store.set('session', s); }
+function clearSession(){ localStorage.removeItem('session'); }
+
+function uid() {
+  return typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID()
+    : Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+}
+
+const REQUEST_TYPES    = ['medical', 'food', 'rescue', 'shelter'];
+const URGENCY_LEVELS   = ['low', 'medium', 'high'];
+const TRACKER_FILTERS  = ['All', 'Medical', 'Food', 'Rescue', 'Shelter', 'Pending', 'In Progress', 'Completed'];
+const DASH_FILTERS     = ['All', 'Medical', 'Food', 'Rescue', 'Shelter'];
+
+function currentUser() { return getSession(); }
+
+let currentPage = '';
+
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById('page-' + page);
+  if (el) { el.classList.add('active'); currentPage = page; }
+  renderPage(page);
+  renderNav();
+  window.scrollTo(0, 0);
+}
+
+function renderNav() {
+  const user = currentUser();
+  const links = document.getElementById('nav-links');
+  links.innerHTML = `
+    <button class="nav-link" onclick="navigate('home')">Home</button>
+    <button class="nav-link" onclick="navigate('track')">Track Requests</button>
+    ${user
+      ? `<button class="nav-link" onclick="navigate('dashboard')">Dashboard</button>
+         <button class="logout-btn" onclick="doLogout()">Logout</button>`
+      : `<button class="nav-link" onclick="navigate('login')">Volunteer Login</button>`
+    }
+  `;
+}
+
+function doLogout() { clearSession(); navigate('home'); }
+
+function renderHome() {
+  const reqs = getRequests();
+  const total      = reqs.length;
+  const pending    = reqs.filter(r => r.status === 'pending').length;
+  const inProgress = reqs.filter(r => r.status === 'in_progress').length;
+  const completed  = reqs.filter(r => r.status === 'completed').length;
+
+  document.getElementById('page-home').innerHTML = `
+    <div class="hero">
+      <div class="hero-inner">
+        <h1 class="hero-title">CRISIS CONNECT</h1>
+        <p class="hero-tagline">
+          Request help, Reach faster.
+        </p>
+        <div class="hero-btns">
+          <button class="btn-primary hero-btn" onclick="navigate('request')">Request Help</button>
+          <button class="btn-secondary hero-btn" onclick="navigate('login')">Volunteer Login</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-section">
+      <div class="container">
+        <h2 class="section-title">Live Overview</h2>
+        <div class="stats-grid">
+          ${statCard('Total Requests', total,     '#1a1a2e')}
+          ${statCard('Pending',        pending,    '#e74c3c')}
+          ${statCard('In Progress',    inProgress, '#f39c12')}
+          ${statCard('Completed',      completed,  '#27ae60')}
+        </div>
+      </div>
+    </div>
+
+    <div class="cta">
+      <div class="container" style="text-align:center">
+        <h2 style="color:#fff;margin-bottom:10px">Track Existing Requests</h2>
+        <p style="color:#ccc;margin-bottom:20px">Check the status of submitted relief requests in real time.</p>
+        <button class="btn-primary" onclick="navigate('track')">View All Requests</button>
+      </div>
+    </div>
+  `;
+}
+
+function statCard(label, value, color) {
+  return `
+    <div class="stat-card" style="border-top:4px solid ${color}">
+      <div class="stat-value" style="color:${color}">${value}</div>
+      <div class="stat-label">${label}</div>
+    </div>`;
+}
+
+function renderRequest() {
+  document.getElementById('page-request').innerHTML = `
+    <div class="form-page">
+      <div class="form-card">
+        <h1 class="form-title">Request Help</h1>
+        <p class="form-subtitle">Fill out the form below and a volunteer will assist you.</p>
+        <div id="req-error" class="error-box" style="display:none"></div>
+        <div id="req-success" style="display:none" class="success-screen">
+          <div style="font-size:3rem;margin-bottom:16px"></div>
+          <h2 style="color:#27ae60;margin-bottom:12px">Request Submitted!</h2>
+          <p style="color:#555;margin-bottom:8px">Your request ID:</p>
+          <code class="id-box" id="req-id-display"></code>
+          <p style="color:#777;margin-top:16px;font-size:.9rem">Save this ID to track your request status.</p>
+          <button class="btn-primary" style="margin-top:24px" onclick="renderRequest()">Submit Another</button>
+        </div>
+        <form id="req-form" onsubmit="submitRequest(event)" novalidate>
+          <div class="field">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="r-name" placeholder="Your full name" />
+            <label style="display:flex;align-items:center;gap:8px;margin-top:8px;color:#666;font-size:.9rem;">
+              <input type="checkbox" id="r-anonymous" style="width:auto;" onchange="toggleAnonymousNameInput(this)" />
+              Stay anonymous
+            </label>
+            <p class="field-error" id="e-name" style="display:none"></p>
+          </div>
+          <div class="field">
+            <label class="form-label">Contact (phone or email)</label>
+            <input type="text" id="r-contact" placeholder="How can we reach you?" />
+            <p class="field-error" id="e-contact" style="display:none"></p>
+          </div>
+          <div class="field">
+            <label class="form-label">Type of Help Needed</label>
+            <select id="r-type">
+              ${REQUEST_TYPES.map(t => `<option value="${t}">${t.charAt(0).toUpperCase() + t.slice(1)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="field">
+            <label class="form-label">Description</label>
+            <textarea id="r-desc" rows="4" placeholder="Describe your situation in detail…"></textarea>
+            <p class="field-error" id="e-desc" style="display:none"></p>
+          </div>
+          <div class="field">
+            <label class="form-label">Location</label>
+            <input type="text" id="r-loc" placeholder="Near Central School, Block 4" />
+            <p class="field-error" id="e-loc" style="display:none"></p>
+          </div>
+          <div class="field">
+            <label class="form-label">Urgency Level</label>
+            <select id="r-urgency">
+              ${URGENCY_LEVELS.map(u => `<option value="${u}"${u === 'medium' ? ' selected' : ''}>${u.charAt(0).toUpperCase() + u.slice(1)}</option>`).join('')}
+            </select>
+          </div>
+          <button type="submit" class="btn-primary submit-btn" id="req-submit-btn">Submit Request</button>
+        </form>
+      </div>
+    </div>
+  `;
+}
+
+function submitRequest(e) {
+  e.preventDefault();
+  const isAnonymous = document.getElementById('r-anonymous').checked;
+  const name    = document.getElementById('r-name').value.trim();
+  const contact = document.getElementById('r-contact').value.trim();
+  const desc    = document.getElementById('r-desc').value.trim();
+  const loc     = document.getElementById('r-loc').value.trim();
+
+  let valid = true;
+  function showErr(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.style.display = msg ? 'block' : 'none'; if (msg) valid = false; }
+  showErr('e-name',    (name || isAnonymous) ? '' : 'Name is required unless you stay anonymous');
+  showErr('e-contact', contact ? '' : 'Contact is required');
+  showErr('e-desc',    desc    ? '' : 'Description is required');
+  showErr('e-loc',     loc     ? '' : 'Location is required');
+
+  if (!valid) return;
+
+  const req = {
+    _id: uid(),
+    requesterName: isAnonymous ? 'Anonymous' : name,
+    contact,
+    type:    document.getElementById('r-type').value,
+    description: desc,
+    location: loc,
+    urgency: document.getElementById('r-urgency').value,
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+    assignedVolunteer: null,
+  };
+
+  const reqs = getRequests();
+  reqs.push(req);
+  saveRequests(reqs);
+
+  document.getElementById('req-form').style.display = 'none';
+  document.getElementById('req-success').style.display = 'block';
+  document.getElementById('req-id-display').textContent = req._id;
+}
+
+function toggleAnonymousNameInput(checkboxEl) {
+  const nameInput = document.getElementById('r-name');
+  if (!nameInput) return;
+  if (checkboxEl.checked) {
+    nameInput.value = '';
+    nameInput.disabled = true;
+    nameInput.readOnly = true;
+    nameInput.placeholder = 'Disabled while anonymous is selected';
+  } else {
+    nameInput.disabled = false;
+    nameInput.readOnly = false;
+    nameInput.placeholder = 'Your full name';
+  }
+}
+
+let trackerFilter = 'All';
+
+function renderTrack() {
+  document.getElementById('page-track').innerHTML = `
+    <div class="tracker-page">
+      <div class="container">
+        <h1 class="tracker-title">Track Requests</h1>
+        <p class="tracker-subtitle">Live status of all submitted relief requests.</p>
+        <div class="filter-row" id="track-filters">
+          ${TRACKER_FILTERS.map(f => `
+            <button class="filter-btn ${f === trackerFilter ? 'active' : ''}"
+              onclick="setTrackerFilter('${f}')">${f}</button>
+          `).join('')}
+        </div>
+        <div id="track-list"></div>
+      </div>
+    </div>
+  `;
+  renderTrackList();
+}
+
+function setTrackerFilter(f) { trackerFilter = f; renderTrack(); }
+
+function renderTrackList() {
+  const reqs = getRequests();
+  const filtered = reqs.filter(r => {
+    if (trackerFilter === 'All')         return true;
+    if (trackerFilter === 'Medical')     return r.type === 'medical';
+    if (trackerFilter === 'Food')        return r.type === 'food';
+    if (trackerFilter === 'Rescue')      return r.type === 'rescue';
+    if (trackerFilter === 'Shelter')     return r.type === 'shelter';
+    if (trackerFilter === 'Pending')     return r.status === 'pending';
+    if (trackerFilter === 'In Progress') return r.status === 'in_progress';
+    if (trackerFilter === 'Completed')   return r.status === 'completed';
+    return true;
+  });
+
+  const el = document.getElementById('track-list');
+  if (!el) return;
+  if (filtered.length === 0) {
+    el.innerHTML = '<p class="state-msg">No requests found.</p>';
+    return;
+  }
+  el.innerHTML = filtered.map(r => requestCardHTML(r, false)).join('');
+}
+
+function renderLogin() {
+  document.getElementById('page-login').innerHTML = `
+    <div class="auth-page">
+      <div class="auth-card">
+        <h1 class="auth-title">Volunteer Login</h1>
+        <p class="auth-subtitle">Sign in to manage and respond to requests.</p>
+        <div id="login-error" class="error-box" style="display:none"></div>
+        <form onsubmit="doLogin(event)" novalidate>
+          <label class="form-label">Email</label>
+          <input type="email" id="l-email" placeholder="you@example.com" />
+          <label class="form-label">Password</label>
+          <input type="password" id="l-pass" placeholder="••••••••" />
+          <label style="display:flex;align-items:center;gap:8px;margin-top:10px;color:#666;font-size:.9rem;">
+            <input type="checkbox" style="width:auto;" onchange="togglePassword('l-pass', this)" />
+            Show password
+          </label>
+          <button type="submit" class="btn-primary form-btn" id="login-btn">Sign In</button>
+        </form>
+        <p class="form-footer">
+          Don't have an account?
+          <span class="form-flink" onclick="navigate('signup')">Sign up as a volunteer</span>
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+function doLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('l-email').value.trim();
+  const pass  = document.getElementById('l-pass').value;
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+
+  if (!email || !pass) { errEl.textContent = 'All fields are required.'; errEl.style.display = 'block'; return; }
+
+  const users = getUsers();
+  const user = users.find(u => u.email === email && u.password === pass);
+  if (!user) { errEl.textContent = 'Invalid email or password.'; errEl.style.display = 'block'; return; }
+
+  saveSession({ _id: user._id, name: user.name, email: user.email });
+  navigate('dashboard');
+}
+
+function renderSignup() {
+  document.getElementById('page-signup').innerHTML = `
+    <div class="auth-page">
+      <div class="auth-card">
+        <h1 class="auth-title">Become a Volunteer</h1>
+        <p class="auth-subtitle">Create an account to start helping those in need.</p>
+        <div id="signup-error" class="error-box" style="display:none"></div>
+        <form onsubmit="doSignup(event)" novalidate>
+          <label class="form-label">Full Name</label>
+          <input type="text" id="s-name" placeholder="Your name" />
+          <label class="form-label">Email</label>
+          <input type="email" id="s-email" placeholder="you@example.com" />
+          <label class="form-label">Password</label>
+          <input type="password" id="s-pass" placeholder="Min. 6 characters" />
+          <label style="display:flex;align-items:center;gap:8px;margin-top:10px;color:#666;font-size:.9rem;">
+            <input type="checkbox" style="width:auto;" onchange="togglePassword('s-pass', this)" />
+            Show password
+          </label>
+          <button type="submit" class="btn-primary form-btn" id="signup-btn">Create Account</button>
+        </form>
+        <p class="form-footer">
+          Already have an account?
+          <span class="form-flink" onclick="navigate('login')">Sign in</span>
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+function doSignup(e) {
+  e.preventDefault();
+  const name  = document.getElementById('s-name').value.trim();
+  const email = document.getElementById('s-email').value.trim();
+  const pass  = document.getElementById('s-pass').value;
+  const errEl = document.getElementById('signup-error');
+  errEl.style.display = 'none';
+
+  if (!name || !email || !pass) { errEl.textContent = 'All fields are required.'; errEl.style.display = 'block'; return; }
+  if (pass.length < 6)          { errEl.textContent = 'Password must be at least 6 characters.'; errEl.style.display = 'block'; return; }
+
+  const users = getUsers();
+  if (users.find(u => u.email === email)) { errEl.textContent = 'An account with this email already exists.'; errEl.style.display = 'block'; return; }
+
+  const user = { _id: uid(), name, email, password: pass };
+  users.push(user);
+  saveUsers(users);
+  saveSession({ _id: user._id, name: user.name, email: user.email });
+  navigate('dashboard');
+}
+
+let dashFilter = 'All';
+
+function renderDashboard() {
+  const user = currentUser();
+  if (!user) { navigate('login'); return; }
+
+  const reqs = getRequests();
+  const pending    = reqs.filter(r => r.status === 'pending').length;
+  const inProgress = reqs.filter(r => r.status === 'in_progress').length;
+
+  document.getElementById('page-dashboard').innerHTML = `
+    <div class="tracker-page">
+      <div class="container">
+        <div class="dash-header">
+          <div>
+            <h1 class="tracker-title">Welcome, ${escHtml(user.name || user.email)}</h1>
+            <p class="tracker-subtitle" style="margin-bottom:0">Manage and respond to relief requests below.</p>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <span class="sum-badge" style="background:#fdecea;color:#c0392b">${pending} Pending</span>
+            <span class="sum-badge" style="background:#eaf4ff;color:#2980b9">${inProgress} In Progress</span>
+          </div>
+        </div>
+        <div class="filter-row">
+          ${DASH_FILTERS.map(f => `
+            <button class="filter-btn ${f === dashFilter ? 'active' : ''}"
+              onclick="setDashFilter('${f}')">${f}</button>
+          `).join('')}
+          <button class="refresh-btn" onclick="renderDashboard()">Refresh</button>
+        </div>
+        <div id="dash-list"></div>
+      </div>
+    </div>
+  `;
+  renderDashList();
+}
+
+function setDashFilter(f) { dashFilter = f; renderDashboard(); }
+
+function renderDashList() {
+  const user = currentUser();
+  const reqs = getRequests();
+  const filtered = reqs.filter(r => {
+    if (dashFilter === 'Medical') return r.type === 'medical';
+    if (dashFilter === 'Food')    return r.type === 'food';
+    if (dashFilter === 'Rescue')  return r.type === 'rescue';
+    if (dashFilter === 'Shelter') return r.type === 'shelter';
+    return true;
+  });
+
+  const el = document.getElementById('dash-list');
+  if (!el) return;
+  if (filtered.length === 0) { el.innerHTML = '<p class="state-msg">No requests found.</p>'; return; }
+  el.innerHTML = filtered.map(r => requestCardHTML(r, true, user)).join('');
+}
+
+function acceptRequest(id) {
+  const user = currentUser();
+  if (!user) return;
+  const reqs = getRequests();
+  const req = reqs.find(r => r._id === id);
+  if (!req || req.status !== 'pending') return;
+  req.status = 'in_progress';
+  req.assignedVolunteer = user._id;
+  saveRequests(reqs);
+  renderDashboard();
+}
+
+function completeRequest(id) {
+  const reqs = getRequests();
+  const req = reqs.find(r => r._id === id);
+  if (!req || req.status !== 'in_progress') return;
+  req.status = 'completed';
+  saveRequests(reqs);
+  renderDashboard();
+}
+
+function togglePassword(inputId, checkboxEl) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  input.type = checkboxEl.checked ? 'text' : 'password';
+}
+
+const urgencyColors = { low: '#27ae60', medium: '#f39c12', high: '#e74c3c' };
+const statusColors  = { pending: '#888', in_progress: '#2980b9', completed: '#27ae60' };
+
+function requestCardHTML(req, isVolunteer, user) {
+  const canAccept   = isVolunteer && req.status === 'pending';
+  const canComplete = isVolunteer && req.status === 'in_progress' &&
+                      user && req.assignedVolunteer === user._id;
+  const date = new Date(req.createdAt).toLocaleString();
+
+  return `
+    <div class="req-card">
+      <div class="req-header">
+        <span class="req-name">${escHtml(req.requesterName)}</span>
+        <div class="req-badges">
+          <span class="badge" style="background:#1a1a2e">${escHtml(req.type)}</span>
+          <span class="badge" style="background:${urgencyColors[req.urgency] || '#888'}">${escHtml(req.urgency)}</span>
+          <span class="badge" style="background:${statusColors[req.status] || '#888'}">${(req.status || '').replace('_', ' ')}</span>
+        </div>
+      </div>
+      <p class="req-desc">${escHtml(req.description)}</p>
+      <div class="req-meta">
+        <span>Location: ${escHtml(req.location)}</span>
+        <span style="color:#999">Time: ${date}</span>
+      </div>
+      ${!isVolunteer ? `<p class="req-meta" style="margin-top:8px;">Request ID: ${escHtml(req._id)}</p>` : ''}
+      ${(canAccept || canComplete) ? `
+        <div class="req-actions">
+          ${canAccept   ? `<button class="btn-primary"   onclick="acceptRequest('${req._id}')">Accept Request</button>` : ''}
+          ${canComplete ? `<button class="btn-secondary" onclick="completeRequest('${req._id}')">Mark Complete</button>` : ''}
+        </div>` : ''}
+    </div>
+  `;
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function renderPage(page) {
+  switch (page) {
+    case 'home':      renderHome();      break;
+    case 'request':   renderRequest();   break;
+    case 'track':     renderTrack();     break;
+    case 'login':     renderLogin();     break;
+    case 'signup':    renderSignup();    break;
+    case 'dashboard': renderDashboard(); break;
+  }
+}
+
+navigate('home');
+</script>
+</body>
+</html>
